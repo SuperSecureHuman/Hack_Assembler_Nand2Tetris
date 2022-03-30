@@ -15,6 +15,7 @@ class parser:
         self.type = None
         #Calling the type check function
         self.CheckType()
+        self.RemoveComment()
     
     def CheckType(self):
         #If Else to check the starting character of the instruction
@@ -37,6 +38,29 @@ class parser:
         self.valueV = self.inst[1:].split(' ')[0]
         return self.valueV
         
+    def RemoveComment(self):
+        self.inst = self.inst.strip()
+        CommentLoc = self.inst.find('//')
+        #If the comment is not found, return the instruction as it is
+        #find() returns -1 if the string is not found
+        if CommentLoc == -1:
+            return
+        #If the first location is a //, then return blank string
+        elif CommentLoc == 0:
+            self.inst = ''
+        #If the comment is found, then return the instruction without the comment
+        else:
+            self.inst = self.inst[:CommentLoc].strip()
+
+    def RemoveBlankLine(self):
+        #If the instruction is blank, return blank string
+        if self.inst == '':
+            return True
+        #If the instruction is not blank, then return the instruction as it is
+        else:
+            return self.inst
+
+
     #Reading the file
     def main():
         #Uses python file handling to open file
@@ -48,8 +72,8 @@ class parser:
             
             for line in asm_lines:
                 p = parser(line)
-                if p.type == 'A':
-                    print(p.A_Value())
-                #print(p.type)
+                if p.RemoveBlankLine() != True:
+                    print(p.inst)
+                
 
 parser.main()
