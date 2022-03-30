@@ -11,7 +11,7 @@
    @R1
    D=M
    @i
-   D=D-M
+   D=D - M
    @END
    D;JEQ
    @R0
@@ -21,7 +21,7 @@
    @1
    D=A
    @i
-   M=D+M
+   M=D+ M
    @LOOP
    0;JMP
 
