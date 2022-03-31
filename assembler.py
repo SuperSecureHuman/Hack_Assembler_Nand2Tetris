@@ -203,6 +203,15 @@ class code:
             self.destBin = '111'
         return self.destBin
 
+    """
+    Another set of if else to read the cmp part of the instruction
+    Then convert to assembly
+
+    Input = CMP of the inst
+
+    Ouput = Hack assembly translation
+    """
+
     def cmp(self):
         a = '0'
         c = ''
@@ -295,6 +304,14 @@ class code:
         self.cmpBin = a + c
         return self.cmpBin
 
+    """
+    Another set of if else to read the jump part of the instruction
+    Then convert to assembly
+
+    Input = jump of the inst
+
+    Ouput = Hack assembly translation
+    """
     def jump(self):
         if self.term == None:
             self.jmpBin = '000'
@@ -315,6 +332,7 @@ class code:
         return self.jmpBin
 
 def main():
+    final_inst = []
     # Uses python file handling to open file
     # The file name is taken from sys.argv, which is the command line arguments
     # with open(sys.argv[1], 'r') as asm_file:
@@ -339,6 +357,7 @@ def main():
                 q = code(p.A_Value())
                 print(p.A_Value())
                 print(q.A_Value_Binary())
+                final_inst.append(q.A_Value_Binary())
                 print('-------------------------- \n')
             
             if p.type == 'C':
@@ -354,6 +373,13 @@ def main():
                 print('jump part')
                 print(p.jump())
                 print(s.jump())
+                print('111' + q.dst() + r.cmp() + s.jump())
+                final_inst.append('111'+ r.cmp() + q.dst()  + s.jump())
                 print('-------------------------- \n')
-
+    
+    with open('add.hack', 'w') as hack_file:
+        for i in final_inst:
+            hack_file.write(i + '\n')
+        hack_file.close()
 main()
+
