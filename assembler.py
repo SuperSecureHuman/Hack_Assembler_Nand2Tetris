@@ -150,27 +150,210 @@ class parser:
         self.jumpValue = self.inst[semiColonLocation + 1 :].strip()
         return self.jumpValue
 
-    # Reading the file
 
-    def main():
-        # Uses python file handling to open file
-        # The file name is taken from sys.argv, which is the command line arguments
-        # with open(sys.argv[1], 'r') as asm_file:
-        with open('Mult.asm', 'r') as asm_file:
-            # Reads the file line by line
-            asm_lines = asm_file.readlines()
-            # Printing lines
 
-            for line in asm_lines:
-                p = parser(line)
-                if p.inst == '\n' or p.inst == '':
-                    continue
-                else:
-                    print(p.inst)
-                    print(p.type + ' instruction')
-                    print(str(p.dst()) + ' destination')
-                    print(str(p.cmp()) + ' comp')
-                    print(str(p.jump()) + ' jump')
-                    print('\n')
+class code:
+    def __init__(self, term):
+        self.term = term
+        self.A_Value_Bin = None
 
-parser.main()
+    """
+    Function to convert a given number into binary
+
+    Input = Anything
+    
+    Ouput = Binary
+    """
+    def decToBin (self, dec):
+        return format (dec, '016b')
+    
+
+    """
+    Convert A value to binary, just uses the earlier defined function
+    """
+    def A_Value_Binary(self):
+        if self.term == None:
+            return None
+        self.A_Value_Bin = self.decToBin(int(self.term))
+        return self.A_Value_Bin
+
+    """
+    Convert C inst to binary. Just bunch of if else
+
+    Input = Valid C destination
+
+    Output = Hack assembly translation
+    """
+    def dst (self):
+        if self.term == None:
+            self.destBin = '000'
+        elif self.term == 'M':
+            self.destBin = '001'
+        elif self.term == 'D':
+            self.destBin = '010'
+        elif self.term == 'MD':
+            self.destBin = '011'
+        elif self.term == 'A':
+            self.destBin = '100'
+        elif self.term == 'AM':
+            self.destBin = '101'
+        elif self.term == 'AD':
+            self.destBin = '110'
+        elif self.term == 'AMD':
+            self.destBin = '111'
+        return self.destBin
+
+    def cmp(self):
+        a = '0'
+        c = ''
+        if self.term == None:
+            self.compB = None
+        elif self.term == '0':
+            a = '0'
+            c = '101010'
+        elif self.term == '1':
+            a = '0'
+            c = '111111'
+        elif self.term == '-1':
+            a = '0'
+            c = '111010'
+        elif self.term == 'D':
+            a = '0'
+            c = '001100'
+        elif self.term == 'A':
+            a = '0'
+            c = '110000'
+        elif self.term == '!D':
+            a = '0'
+            c = '001101'
+        elif self.term == '!A':
+            a = '0'
+            c = '110001'
+        elif self.term == '-D':
+            a = '0'
+            c = '001111'
+        elif self.term == '-A':
+            a = '0'
+            c = '110011'
+        elif self.term == 'D+1':
+            a = '0'
+            c = '011111'
+        elif self.term == 'A+1':
+            a = '0'
+            c = '110111'
+        elif self.term == 'D-1':
+            a = '0'
+            c = '001110'
+        elif self.term == 'A-1':
+            a = '0'
+            c = '110010'
+        elif self.term == 'D+A':
+            a = '0'
+            c = '000010'
+        elif self.term == 'D-A':
+            a = '0'
+            c = '010011'
+        elif self.term == 'A-D':
+            a = '0'
+            c = '000111'
+        elif self.term == 'D&A':
+            a = '0'
+            c = '000000'
+        elif self.term == 'D|A':
+            a = '0'
+            c = '010101'
+        elif self.term == 'M':
+            a = '1'
+            c = '110000'
+        elif self.term == '!M':
+            a = '1'
+            c = '110001'
+        elif self.term == '-M':
+            a = '1'
+            c = '110011'
+        elif self.term == 'M+1':
+            a = '1'
+            c = '110111'
+        elif self.term == 'M-1':
+            a = '1'
+            c = '110010'
+        elif self.term == 'D+M':
+            a = '1'
+            c = '000010'
+        elif self.term == 'D-M':
+            a = '1'
+            c = '010011'
+        elif self.term == 'M-D':
+            a = '1'
+            c = '000111'
+        elif self.term == 'D&M':
+            a = '1'
+            c = '000000'
+        elif self.term == 'D|M':
+            a = '1'
+            c = '010101'
+        self.cmpBin = a + c
+        return self.cmpBin
+
+    def jump(self):
+        if self.term == None:
+            self.jmpBin = '000'
+        elif self.term == 'JGT':
+            self.jmpBin = '001'
+        elif self.term == 'JEQ':
+            self.jmpBin = '010'
+        elif self.term == 'JGE':
+            self.jmpBin = '011'
+        elif self.term == 'JLT':
+            self.jmpBin = '100'
+        elif self.term == 'JNE':
+            self.jmpBin = '101'
+        elif self.term == 'JLE':
+            self.jmpBin = '110'
+        elif self.term == 'JMP':
+            self.jmpBin = '111'
+        return self.jmpBin
+
+def main():
+    # Uses python file handling to open file
+    # The file name is taken from sys.argv, which is the command line arguments
+    # with open(sys.argv[1], 'r') as asm_file:
+    with open('add.asm', 'r') as asm_file:
+        # Reads the file line by line
+        asm_lines = asm_file.readlines()
+        # Printing lines
+        for line in asm_lines:
+            p = parser(line)
+            if p.inst == '\n' or p.inst == '':
+                continue
+            else:
+                print(str(p.inst) )
+                print(p.type + ' instruction')
+                print(str(p.dst()) + ' destination')
+                print(str(p.cmp()) + ' comp')
+                print(str(p.jump()) + ' jump')
+                print('\n')
+            
+            
+            if p.type == 'A':
+                q = code(p.A_Value())
+                print(p.A_Value())
+                print(q.A_Value_Binary())
+                print('-------------------------- \n')
+            
+            if p.type == 'C':
+                q = code(p.dst())
+                r = code(p.cmp())
+                s = code(p.jump())
+                print('dst part')
+                print(p.dst())
+                print(q.dst())
+                print('cmp part')
+                print(p.cmp())
+                print(r.cmp())
+                print('jump part')
+                print(p.jump())
+                print(s.jump())
+                print('-------------------------- \n')
+
+main()
