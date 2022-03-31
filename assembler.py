@@ -2,9 +2,9 @@
 
 import sys
 
-'''
-Build Parser
-'''
+
+#file = sys.argv[1]
+file = "add.asm"
 
 class parser:
 
@@ -76,10 +76,9 @@ class parser:
         # If the comment is found, then return the instruction without the comment
         else:
             self.inst = self.inst[:CommentLoc].strip()
-        
-        #This will remove all the space in a line
-        self.inst = self.inst.replace(' ', '')
 
+        # This will remove all the space in a line
+        self.inst = self.inst.replace(' ', '')
 
     """
     Function to return true for blank lines
@@ -127,7 +126,8 @@ class parser:
             return None
         # Checking through all the possible cases of = and ;, and getting the comp part of the instruction
         if equalLocation != -1 and semiColonLocation != -1:
-            self.compValue = self.inst[equalLocation + 1 : semiColonLocation].strip()
+            self.compValue = self.inst[equalLocation +
+                                       1: semiColonLocation].strip()
         elif equalLocation != -1 and semiColonLocation == -1:
             self.compValue = self.inst[equalLocation+1:].strip()
         elif equalLocation == -1 and semiColonLocation != -1:
@@ -143,13 +143,13 @@ class parser:
 
     Ouput = jump part of the instruction
     """
+
     def jump(self):
         semiColonLocation = self.inst.find(';')
         if self.type != 'C' or semiColonLocation == -1:
-            return None        
-        self.jumpValue = self.inst[semiColonLocation + 1 :].strip()
+            return None
+        self.jumpValue = self.inst[semiColonLocation + 1:].strip()
         return self.jumpValue
-
 
 
 class code:
@@ -164,13 +164,14 @@ class code:
     
     Ouput = Binary
     """
-    def decToBin (self, dec):
-        return format (dec, '016b')
-    
+
+    def decToBin(self, dec):
+        return format(dec, '016b')
 
     """
     Convert A value to binary, just uses the earlier defined function
     """
+
     def A_Value_Binary(self):
         if self.term == None:
             return None
@@ -184,7 +185,8 @@ class code:
 
     Output = Hack assembly translation
     """
-    def dst (self):
+
+    def dst(self):
         if self.term == None:
             self.destBin = '000'
         elif self.term == 'M':
@@ -312,6 +314,7 @@ class code:
 
     Ouput = Hack assembly translation
     """
+
     def jump(self):
         if self.term == None:
             self.jmpBin = '000'
@@ -330,13 +333,57 @@ class code:
         elif self.term == 'JMP':
             self.jmpBin = '111'
         return self.jmpBin
+    
+
+class passes:
+
+    def __init__(self, symbolTable):
+        self.symbolTable = symbolTable
+    def firstPass(self):
+        with open(file, 'r') as asm:
+            lineNo = -1
+            for inst in asm:
+                p = parser(inst)
+                if p.type == 'A' or p.type == 'C':
+                    lineNo += 1
+                if p.type == 'L':
+                    sym = p.inst[1:-1]
+                    if not self.symbolTable.CheckSymbolExist(sym):
+                       self.symbolTable.AddSymbols(sym, lineNo+1) 
+
+class symbol:
+    def __init__(self):
+        self.symbols = {}
+        for MemReg in range(0, 16):
+            self.symbols['R' + str(MemReg)] = MemReg
+        self.symbols["SCREEN"] = 16384
+        self.symbols["KBD"] = 24576
+        self.symbols["SP"] = 0
+        self.symbols["LCL"] = 1
+        self.symbols["ARG"] = 2
+        self.symbols["THIS"] = 3
+        self.symbols["THAT"] = 4
+
+    def CheckSymbolExist(self, symbol):
+        if self.symbols.get(symbol) == None:
+            return False
+        else:
+            return True
+    def AddSymbols(self, symbol, value):
+        self.symbols[symbol] = value
+    def GetSymbolValue(self, symbol):
+        return self.symbols.get(symbol)
 
 def main():
     final_inst = []
+    st = symbol()
+    p = passes(st)
+    p.firstPass()
+
     # Uses python file handling to open file
     # The file name is taken from sys.argv, which is the command line arguments
     # with open(sys.argv[1], 'r') as asm_file:
-    with open('add.asm', 'r') as asm_file:
+    with open(file, 'r') as asm_file:
         # Reads the file line by line
         asm_lines = asm_file.readlines()
         # Printing lines
@@ -345,41 +392,28 @@ def main():
             if p.inst == '\n' or p.inst == '':
                 continue
             else:
-                print(str(p.inst) )
-                print(p.type + ' instruction')
-                print(str(p.dst()) + ' destination')
-                print(str(p.cmp()) + ' comp')
-                print(str(p.jump()) + ' jump')
-                print('\n')
-            
-            
+                print(str(p.inst))
+
             if p.type == 'A':
                 q = code(p.A_Value())
-                print(p.A_Value())
                 print(q.A_Value_Binary())
                 final_inst.append(q.A_Value_Binary())
                 print('-------------------------- \n')
-            
+
             if p.type == 'C':
                 q = code(p.dst())
                 r = code(p.cmp())
                 s = code(p.jump())
-                print('dst part')
-                print(p.dst())
-                print(q.dst())
-                print('cmp part')
-                print(p.cmp())
-                print(r.cmp())
-                print('jump part')
-                print(p.jump())
-                print(s.jump())
                 print('111' + q.dst() + r.cmp() + s.jump())
-                final_inst.append('111'+ r.cmp() + q.dst()  + s.jump())
+                final_inst.append('111' + r.cmp() + q.dst() + s.jump())
                 print('-------------------------- \n')
-    
-    with open('add.hack', 'w') as hack_file:
-        for i in final_inst:
-            hack_file.write(i + '\n')
-        hack_file.close()
-main()
 
+    for i in st.symbols:
+        print(str(i) + '\t' + str(st.symbols[i]))
+    # with open('add.hack', 'w') as hack_file:
+    #    for i in final_inst:
+    #        hack_file.write(i + '\n')
+    #    hack_file.close()
+
+
+main()

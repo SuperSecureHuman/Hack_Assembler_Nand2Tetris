@@ -6,5 +6,6 @@ D = A //comment to let you know that there is a space in this inst
 D=D+ A
 @0
 M=D
-
+(var)
+D = M
 //comment but in end
