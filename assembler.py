@@ -4,7 +4,7 @@ import sys
 
 
 #file = sys.argv[1]
-file = "add.asm"
+file = "Mult.asm"
 
 class parser:
 
@@ -337,8 +337,8 @@ class code:
 
 class passes:
 
-    def __init__(self, symbolTable):
-        self.symbolTable = symbolTable
+    def __init__(self, symbol):
+        self.symbol = symbol
     def firstPass(self):
         with open(file, 'r') as asm:
             lineNo = -1
@@ -348,8 +348,39 @@ class passes:
                     lineNo += 1
                 if p.type == 'L':
                     sym = p.inst[1:-1]
-                    if not self.symbolTable.CheckSymbolExist(sym):
-                       self.symbolTable.AddSymbols(sym, lineNo+1) 
+                    if not self.symbol.CheckSymbolExist(sym):
+                       self.symbol.AddSymbols(sym, lineNo+1)
+    
+    def secondPass(self):
+
+        with open (file.split('.')[0] + '.hack', 'w') as hack:
+            with open (file, 'r') as asm:
+                variableLocation = 16
+                for inst in asm:
+                    input = parser(inst)
+                    if input.type == 'A':
+                        SYMBOL = input.inst[1:]
+                        if self.symbol.CheckSymbolExist(SYMBOL):
+                            out = code(self.symbol.GetSymbolValue(SYMBOL))
+                            hack.write(out.A_Value_Binary() + '\n')
+                        else:
+                            try:
+                                val = int(SYMBOL)
+                                out = code(val)
+                                hack.write(out.A_Value_Binary() + '\n')
+                            except ValueError:
+                                self.symbol.AddSymbols(SYMBOL, variableLocation)
+                                out = code(variableLocation)
+                                hack.write(out.A_Value_Binary() + '\n')
+                                variableLocation += 1
+                    elif input.type == 'C':
+                        d = code(input.dst())
+                        c = code(input.cmp())
+                        j = code(input.jump())
+                        hack.write('111'+c.cmp()+d.dst()+j.jump()+'\n') 
+
+
+
 
 class symbol:
     def __init__(self):
@@ -375,45 +406,9 @@ class symbol:
         return self.symbols.get(symbol)
 
 def main():
-    final_inst = []
     st = symbol()
     p = passes(st)
     p.firstPass()
-
-    # Uses python file handling to open file
-    # The file name is taken from sys.argv, which is the command line arguments
-    # with open(sys.argv[1], 'r') as asm_file:
-    with open(file, 'r') as asm_file:
-        # Reads the file line by line
-        asm_lines = asm_file.readlines()
-        # Printing lines
-        for line in asm_lines:
-            p = parser(line)
-            if p.inst == '\n' or p.inst == '':
-                continue
-            else:
-                print(str(p.inst))
-
-            if p.type == 'A':
-                q = code(p.A_Value())
-                print(q.A_Value_Binary())
-                final_inst.append(q.A_Value_Binary())
-                print('-------------------------- \n')
-
-            if p.type == 'C':
-                q = code(p.dst())
-                r = code(p.cmp())
-                s = code(p.jump())
-                print('111' + q.dst() + r.cmp() + s.jump())
-                final_inst.append('111' + r.cmp() + q.dst() + s.jump())
-                print('-------------------------- \n')
-
-    for i in st.symbols:
-        print(str(i) + '\t' + str(st.symbols[i]))
-    # with open('add.hack', 'w') as hack_file:
-    #    for i in final_inst:
-    #        hack_file.write(i + '\n')
-    #    hack_file.close()
-
+    p.secondPass()
 
 main()
