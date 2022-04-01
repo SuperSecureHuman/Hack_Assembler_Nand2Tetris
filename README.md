@@ -6,9 +6,9 @@ This assembler is written in pure python, and makes extensive use classes and fu
 
 ## Usage
 
-    ```bash
-    python3 assembler.py <input.asm> 
-    ```
+```bash
+python3 assembler.py <input.asm> 
+```
 
 ## License
 
