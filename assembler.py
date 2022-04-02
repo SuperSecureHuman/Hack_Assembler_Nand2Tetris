@@ -267,10 +267,10 @@ class code:
         elif self.term == "-A":
             a = "0"
             c = "110011"
-        elif self.term == "D+1":
+        elif self.term == "D+1" or self.term == "1+D":
             a = "0"
             c = "011111"
-        elif self.term == "A+1":
+        elif self.term == "A+1" or self.term == "1+A":
             a = "0"
             c = "110111"
         elif self.term == "D-1":
@@ -279,7 +279,7 @@ class code:
         elif self.term == "A-1":
             a = "0"
             c = "110010"
-        elif self.term == "D+A":
+        elif self.term == "D+A" or self.term == "A+D":
             a = "0"
             c = "000010"
         elif self.term == "D-A":
@@ -288,10 +288,10 @@ class code:
         elif self.term == "A-D":
             a = "0"
             c = "000111"
-        elif self.term == "D&A":
+        elif self.term == "D&A" or self.term == "A&D":
             a = "0"
             c = "000000"
-        elif self.term == "D|A":
+        elif self.term == "D|A" or self.term == "A|D":
             a = "0"
             c = "010101"
         elif self.term == "M":
@@ -303,13 +303,13 @@ class code:
         elif self.term == "-M":
             a = "1"
             c = "110011"
-        elif self.term == "M+1":
+        elif self.term == "M+1" or self.term == "1+M":
             a = "1"
             c = "110111"
         elif self.term == "M-1":
             a = "1"
             c = "110010"
-        elif self.term == "D+M":
+        elif self.term == "D+M" or self.term == "M+D":
             a = "1"
             c = "000010"
         elif self.term == "D-M":
@@ -318,10 +318,10 @@ class code:
         elif self.term == "M-D":
             a = "1"
             c = "000111"
-        elif self.term == "D&M":
+        elif self.term == "D&M" or self.term == "M&D":
             a = "1"
             c = "000000"
-        elif self.term == "D|M":
+        elif self.term == "D|M" or self.term == "M|D":
             a = "1"
             c = "010101"
         self.cmpBin = a + c
